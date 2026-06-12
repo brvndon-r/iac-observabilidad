@@ -1,20 +1,10 @@
-# Laboratorio de Observabilidad — Infraestructura como Código
-# Levanta apps (backend + frontend) y el stack completo: Prometheus, Loki,
-# Alloy, Grafana, node-exporter y cAdvisor.
-#
-#   docker compose up -d --build      # levantar todo
-#   docker compose down               # detener (conserva dashboards de Grafana)
-#   docker compose down -v            # detener y borrar datos (reset total)
-
-services:
-  # ----------------------------- Aplicaciones -----------------------------
+﻿services:
   backend:
     build: ./apps/backend
     container_name: lab-backend
     ports:
       - "3001:3001"
     restart: unless-stopped
-
   frontend:
     build: ./apps/frontend
     container_name: lab-frontend
@@ -25,8 +15,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-
-  # ----------------------------- Métricas -----------------------------
   prometheus:
     image: prom/prometheus:v3.8.1
     container_name: lab-prometheus
@@ -38,36 +26,6 @@ services:
     ports:
       - "9090:9090"
     restart: unless-stopped
-
-  node-exporter:
-    image: prom/node-exporter:v1.8.2
-    container_name: lab-node-exporter
-    command:
-      - "--path.rootfs=/host"
-    pid: host
-    volumes:
-      - /:/host:ro,rslave
-    ports:
-      - "9100:9100"
-    restart: unless-stopped
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
-    container_name: lab-cadvisor
-    privileged: true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    devices:
-      - /dev/kmsg
-    ports:
-      - "8081:8080"
-    restart: unless-stopped
-
-  # ----------------------------- Logs -----------------------------
   loki:
     image: grafana/loki:3.4.0
     container_name: lab-loki
@@ -77,7 +35,6 @@ services:
     ports:
       - "3100:3100"
     restart: unless-stopped
-
   alloy:
     image: grafana/alloy:v1.10.0
     container_name: lab-alloy
@@ -93,8 +50,6 @@ services:
     depends_on:
       - loki
     restart: unless-stopped
-
-  # ----------------------------- Visualización -----------------------------
   grafana:
     image: grafana/grafana:12.4.0
     container_name: lab-grafana
@@ -111,7 +66,6 @@ services:
       - prometheus
       - loki
     restart: unless-stopped
-
 volumes:
   prometheus-data:
   grafana-data:
